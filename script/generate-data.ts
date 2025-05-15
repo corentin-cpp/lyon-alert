@@ -63,6 +63,12 @@ const eventTypes = [
       'Vulnérabilité critique découverte dans les équipements connectés du {arrondissement}',
       'Attaque par déni de service affectant les services en ligne du {arrondissement}'
     ],
+  },
+  {
+    type: 'community',
+    detailsTemplates: [
+      'Signalement communautaire: Fissures observées sur un bâtiment du {arrondissement}'
+    ],
   }
 ];
 
