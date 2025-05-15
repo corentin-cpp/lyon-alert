@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, AlertTriangle, Droplets, Compass, ZoomIn, ZoomOut, Home, Users } from 'lucide-react';
+import { MapPin, AlertTriangle, Droplets, Compass, ZoomIn, ZoomOut, Home, Users, Layers } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Here we're just creating a simplified map UI to demonstrate the concept
 
 // Mock data for map markers
-const mockMarkers = [
+const mockMarkers: Marker[] = [
   {
     id: 1,
     type: 'earthquake',
@@ -76,7 +76,11 @@ const mockMarkers = [
 ];
 
 // Define the areas of risk
-const riskZones = [
+const riskZones: {
+  arrondissement: string;
+  risks: string[];
+  coords: [number, number][];
+}[] = [
   { arrondissement: "1er", risks: ["earthquake", "flood"], coords: [[45.767, 4.834], [45.763, 4.831], [45.770, 4.827], [45.774, 4.830]] },
   { arrondissement: "2e", risks: ["earthquake", "flood"], coords: [[45.757, 4.835], [45.751, 4.836], [45.755, 4.829], [45.760, 4.827]] },
   { arrondissement: "3e", risks: ["flood"], coords: [[45.758, 4.853], [45.752, 4.860], [45.745, 4.865], [45.739, 4.870]] },
@@ -226,7 +230,7 @@ export default function InteractiveMap({ filterType }: MapProps) {
         }}
       >
         {/* This would be replaced with actual map implementation */}
-        <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/4.85,45.75,11,0/1200x900?access_token=pk.placeholder')] bg-cover bg-center opacity-80">
+        <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/4.85,45.75,11,0/1200x900?access_token=sk.eyJ1IjoiYmVjaGFtZWxsbyIsImEiOiJjbWFwNDQ3MWkwYnJvMmtzYWxwd2tyNG40In0.4Lg_JPvxrjhtNhPVvkrsqA')] bg-cover bg-center opacity-80">
           {/* Risk zones */}
           {showRiskZones && riskZones.map((zone, idx) => {
             const showZone = (zone.risks.includes('earthquake') && showEarthquake) ||
@@ -264,7 +268,7 @@ export default function InteractiveMap({ filterType }: MapProps) {
                     marker.type === 'community' ? "text-primary" : 
                     marker.type === 'earthquake' ? "text-orange-500" : "text-blue-500"
                   )}
-                  style={getMarkerStyle(marker.coordinates)}
+                  style={getMarkerStyle(marker.coordinates as [number, number])}
                   onClick={() => setSelectedMarker(marker)}
                 >
                   <div className="relative">
