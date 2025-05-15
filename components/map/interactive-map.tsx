@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, AlertTriangle, Droplets, Compass, ZoomIn, ZoomOut, Home, Users } from 'lucide-react';
+import { MapPin, AlertTriangle, Droplets, Compass, ZoomIn, ZoomOut, Home, Users, Layers } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Here we're just creating a simplified map UI to demonstrate the concept
 
 // Mock data for map markers
-const mockMarkers = [
+const mockMarkers: Marker[] = [
   {
     id: 1,
     type: 'earthquake',
@@ -76,7 +76,13 @@ const mockMarkers = [
 ];
 
 // Define the areas of risk
-const riskZones = [
+type RiskZone = {
+  arrondissement: string;
+  risks: string[];
+  coords: [number, number][];
+};
+
+const riskZones: RiskZone[] = [
   { arrondissement: "1er", risks: ["earthquake", "flood"], coords: [[45.767, 4.834], [45.763, 4.831], [45.770, 4.827], [45.774, 4.830]] },
   { arrondissement: "2e", risks: ["earthquake", "flood"], coords: [[45.757, 4.835], [45.751, 4.836], [45.755, 4.829], [45.760, 4.827]] },
   { arrondissement: "3e", risks: ["flood"], coords: [[45.758, 4.853], [45.752, 4.860], [45.745, 4.865], [45.739, 4.870]] },
@@ -225,31 +231,43 @@ export default function InteractiveMap({ filterType }: MapProps) {
           transition: 'transform 0.3s ease-out'
         }}
       >
+
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/4.85,45.75,11,0/1200x900?access_token=${process.env.NEXT_PUBLIC_MAPBOX_SK}')`
+          }}
+        >
         {/* This would be replaced with actual map implementation */}
-        <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/4.85,45.75,11,0/1200x900?access_token=pk.placeholder')] bg-cover bg-center opacity-80">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/4.85,45.75,11,0/1200x900?access_token=${process.env.NEXT_PUBLIC_MAPBOX_SK}')`
+          }}
+        ></div>
           {/* Risk zones */}
           {showRiskZones && riskZones.map((zone, idx) => {
             const showZone = (zone.risks.includes('earthquake') && showEarthquake) ||
-                           (zone.risks.includes('flood') && showFlood);
-                           
+               (zone.risks.includes('flood') && showFlood);
+               
             if (!showZone) return null;
             
             return (
               <div 
-                key={idx}
-                className={cn(
-                  "absolute inset-0 opacity-25",
-                  zone.risks.includes('earthquake') && zone.risks.includes('flood') 
-                    ? "bg-purple-500" 
-                    : zone.risks.includes('earthquake') 
-                      ? "bg-orange-500" 
-                      : "bg-blue-500"
-                )}
-                style={getZoneStyle(zone.coords)}
+          key={idx}
+          className={cn(
+            "absolute inset-0 opacity-25",
+            zone.risks.includes('earthquake') && zone.risks.includes('flood') 
+              ? "bg-purple-500" 
+              : zone.risks.includes('earthquake') 
+                ? "bg-orange-500" 
+                : "bg-blue-500"
+          )}
+          style={getZoneStyle(zone.coords)}
               >
-                <div className="flex items-center justify-center h-full text-white font-bold">
-                  {zone.arrondissement}
-                </div>
+          <div className="flex items-center justify-center h-full text-white font-bold">
+            {zone.arrondissement}
+          </div>
               </div>
             );
           })}
@@ -258,114 +276,114 @@ export default function InteractiveMap({ filterType }: MapProps) {
           {filteredMarkers.map(marker => (
             <Popover key={marker.id}>
               <PopoverTrigger asChild>
-                <button
-                  className={cn(
-                    "absolute transform -translate-x-1/2 -translate-y-1/2 z-20",
-                    marker.type === 'community' ? "text-primary" : 
-                    marker.type === 'earthquake' ? "text-orange-500" : "text-blue-500"
-                  )}
-                  style={getMarkerStyle(marker.coordinates)}
-                  onClick={() => setSelectedMarker(marker)}
-                >
-                  <div className="relative">
-                    {marker.type === 'earthquake' && <AlertTriangle className="h-8 w-8" />}
-                    {marker.type === 'flood' && <Droplets className="h-8 w-8" />}
-                    {marker.type === 'community' && <Users className="h-8 w-8" />}
-                    
-                    {/* Pulse animation for recent events */}
-                    {new Date(marker.timestamp) > new Date(Date.now() - 1000 * 60 * 60) && (
-                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-                      </span>
-                    )}
-                  </div>
-                </button>
+          <button
+            className={cn(
+              "absolute transform -translate-x-1/2 -translate-y-1/2 z-20",
+              marker.type === 'community' ? "text-primary" : 
+              marker.type === 'earthquake' ? "text-orange-500" : "text-blue-500"
+            )}
+            style={getMarkerStyle(marker.coordinates as [number, number])}
+            onClick={() => setSelectedMarker(marker)}
+          >
+            <div className="relative">
+              {marker.type === 'earthquake' && <AlertTriangle className="h-8 w-8" />}
+              {marker.type === 'flood' && <Droplets className="h-8 w-8" />}
+              {marker.type === 'community' && <Users className="h-8 w-8" />}
+              
+              {/* Pulse animation for recent events */}
+              {new Date(marker.timestamp) > new Date(Date.now() - 1000 * 60 * 60) && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                </span>
+              )}
+            </div>
+          </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0">
-                <div className={cn(
-                  "px-4 py-3",
-                  marker.type === 'earthquake' ? "bg-orange-500/10" : 
-                  marker.type === 'flood' ? "bg-blue-500/10" : 
-                  "bg-primary/10"
-                )}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium flex items-center gap-1">
-                      {marker.type === 'earthquake' && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                      {marker.type === 'flood' && <Droplets className="h-4 w-4 text-blue-500" />}
-                      {marker.type === 'community' && <Users className="h-4 w-4 text-primary" />}
-                      {marker.type === 'earthquake' && 'Séisme'}
-                      {marker.type === 'flood' && 'Inondation'}
-                      {marker.type === 'community' && 'Signalement communautaire'}
-                    </h3>
-                    <Badge variant={
-                      marker.level === 'low' ? "outline" : 
-                      marker.level === 'medium' ? "default" : 
-                      "destructive"
-                    }>
-                      {marker.level === 'low' && 'Faible'}
-                      {marker.level === 'medium' && 'Modéré'}
-                      {marker.level === 'high' && 'Élevé'}
-                      {marker.level === 'critical' && 'Critique'}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="p-4 space-y-2">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>{marker.location}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{formatTime(marker.timestamp)}</span>
-                  </div>
-                  
-                  {marker.magnitude && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Magnitude:</span>
-                      <Badge variant={
-                        marker.magnitude < 3 ? "outline" : 
-                        marker.magnitude < 4 ? "default" : 
-                        "destructive"
-                      }>
-                        {marker.magnitude}
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {marker.waterLevel && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Niveau d&apos;eau:</span>
-                      <Badge variant={
-                        marker.waterLevel < 1 ? "outline" : 
-                        marker.waterLevel < 2 ? "default" : 
-                        "destructive"
-                      }>
-                        {marker.waterLevel} m
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {marker.reportCount && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Signalements:</span>
-                      <Badge>{marker.reportCount}</Badge>
-                    </div>
-                  )}
-                  
-                  <p className="text-sm mt-2">{marker.details}</p>
-                  
-                  <div className="flex justify-between pt-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={`/chat/${marker.location.split(' ')[1].replace(/[^0-9]/g, '')}`}>
-                        Chat local
-                      </a>
-                    </Button>
-                    <Button size="sm">Plus de détails</Button>
-                  </div>
-                </div>
+          <div className={cn(
+            "px-4 py-3",
+            marker.type === 'earthquake' ? "bg-orange-500/10" : 
+            marker.type === 'flood' ? "bg-blue-500/10" : 
+            "bg-primary/10"
+          )}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium flex items-center gap-1">
+                {marker.type === 'earthquake' && <AlertTriangle className="h-4 w-4 text-orange-500" />}
+                {marker.type === 'flood' && <Droplets className="h-4 w-4 text-blue-500" />}
+                {marker.type === 'community' && <Users className="h-4 w-4 text-primary" />}
+                {marker.type === 'earthquake' && 'Séisme'}
+                {marker.type === 'flood' && 'Inondation'}
+                {marker.type === 'community' && 'Signalement communautaire'}
+              </h3>
+              <Badge variant={
+                marker.level === 'low' ? "outline" : 
+                marker.level === 'medium' ? "default" : 
+                "destructive"
+              }>
+                {marker.level === 'low' && 'Faible'}
+                {marker.level === 'medium' && 'Modéré'}
+                {marker.level === 'high' && 'Élevé'}
+                {marker.level === 'critical' && 'Critique'}
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="p-4 space-y-2">
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+              <span>{marker.location}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>{formatTime(marker.timestamp)}</span>
+            </div>
+            
+            {marker.magnitude && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Magnitude:</span>
+                <Badge variant={
+            marker.magnitude < 3 ? "outline" : 
+            marker.magnitude < 4 ? "default" : 
+            "destructive"
+                }>
+            {marker.magnitude}
+                </Badge>
+              </div>
+            )}
+            
+            {marker.waterLevel && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Niveau d&apos;eau:</span>
+                <Badge variant={
+            marker.waterLevel < 1 ? "outline" : 
+            marker.waterLevel < 2 ? "default" : 
+            "destructive"
+                }>
+            {marker.waterLevel} m
+                </Badge>
+              </div>
+            )}
+            
+            {marker.reportCount && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Signalements:</span>
+                <Badge>{marker.reportCount}</Badge>
+              </div>
+            )}
+            
+            <p className="text-sm mt-2">{marker.details}</p>
+            
+            <div className="flex justify-between pt-2">
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/chat/${marker.location.split(' ')[1].replace(/[^0-9]/g, '')}`}>
+            Chat local
+                </a>
+              </Button>
+              <Button size="sm">Plus de détails</Button>
+            </div>
+          </div>
               </PopoverContent>
             </Popover>
           ))}
