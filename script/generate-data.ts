@@ -16,20 +16,104 @@ function getRandomElement<T>(array: T[]): T {
 }
 
 function randomFloat(min: number, max: number): number {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(1));
+  return parseFloat((Math.random() * (max - min) + min).toFixed(4));
 }
 
-const lyonArrondissements = [
-  { name: 'Lyon 1er', coordinates: [45.767, 4.834] },
-  { name: 'Lyon 2e', coordinates: [45.751, 4.836] },
-  { name: 'Lyon 3e', coordinates: [45.758, 4.853] },
-  { name: 'Lyon 4e', coordinates: [45.775, 4.830] },
-  { name: 'Lyon 5e', coordinates: [45.759, 4.821] },
-  { name: 'Lyon 6e', coordinates: [45.770, 4.850] },
-  { name: 'Lyon 7e', coordinates: [45.745, 4.842] },
-  { name: 'Lyon 8e', coordinates: [45.735, 4.860] },
-  { name: 'Lyon 9e', coordinates: [45.778, 4.807] }
+function generateRandomCoordinates(): [number, number] {
+  const latMin = 45.735;
+  const latMax = 45.778;
+  const lngMin = 4.807;
+  const lngMax = 4.860;
+  
+  return [
+    randomFloat(latMin, latMax),
+    randomFloat(lngMin, lngMax)
+  ];
+}
+
+// Définition des zones des arrondissements (approximatives)
+const arrondissementZones = [
+  {
+    name: 'Lyon 1er',
+    bounds: {
+      lat: [45.764, 45.775],
+      lng: [4.813, 4.840]
+    }
+  },
+  {
+    name: 'Lyon 2e',
+    bounds: {
+      lat: [45.744, 45.766],
+      lng: [4.813, 45.840]
+    }
+  },
+  {
+    name: 'Lyon 3e',
+    bounds: {
+      lat: [45.739, 45.764],
+      lng: [4.838, 4.898]
+    }
+  },
+  {
+    name: 'Lyon 4e',
+    bounds: {
+      lat: [45.771, 45.790],
+      lng: [4.809, 4.843]
+    }
+  },
+  {
+    name: 'Lyon 5e',
+    bounds: {
+      lat: [45.744, 45.768],
+      lng: [4.772, 4.830]
+    }
+  },
+  {
+    name: 'Lyon 6e',
+    bounds: {
+      lat: [45.764, 45.787],
+      lng: [4.839, 4.870]
+    }
+  },
+  {
+    name: 'Lyon 7e',
+    bounds: {
+      lat: [45.707, 45.757],
+      lng: [4.819, 4.860]
+    }
+  },
+  {
+    name: 'Lyon 8e',
+    bounds: {
+      lat: [45.719, 45.749],
+      lng: [4.848, 4.892]
+    }
+  },
+  {
+    name: 'Lyon 9e',
+    bounds: {
+      lat: [45.759, 45.808],
+      lng: [4.784, 4.841]
+    }
+  }
 ];
+
+function getArrondissementFromCoordinates(coordinates: [number, number]): string {
+  const [lat, lng] = coordinates;
+  
+  for (const arrondissement of arrondissementZones) {
+    const { bounds } = arrondissement;
+    if (
+      lat >= bounds.lat[0] && lat <= bounds.lat[1] &&
+      lng >= bounds.lng[0] && lng <= bounds.lng[1]
+    ) {
+      return arrondissement.name;
+    }
+  }
+  
+  // Si aucun arrondissement n'est trouvé, retourner le plus proche
+  return 'Lyon 1er';
+}
 
 const riskLevels = ['low', 'medium', 'high', 'critical'];
 
@@ -81,16 +165,17 @@ async function seedEvents(numEvents = 2000) {
   
   for (let i = 0; i < numEvents; i++) {
     const eventTypeConfig = getRandomElement(eventTypes);
-    const location = getRandomElement(lyonArrondissements);
+    const coordinates = generateRandomCoordinates();
+    const location = getArrondissementFromCoordinates(coordinates);
     const level = getRandomElement(riskLevels);
     
     const detailTemplate = getRandomElement(eventTypeConfig.detailsTemplates);
-    const details = detailTemplate.replace('{arrondissement}', location.name);
+    const details = detailTemplate.replace('{arrondissement}', location);
     
     let event: any = {
       type: eventTypeConfig.type,
-      location: location.name,
-      coordinates: location.coordinates,
+      location,
+      coordinates,
       level,
       timestamp: randomRecentDate(),
       details,
