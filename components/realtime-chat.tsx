@@ -47,7 +47,6 @@ export const RealtimeChat = ({
     isConnected,
   } = useRealtimeChat({
     roomName,
-    zone,
     username,
   })
 
