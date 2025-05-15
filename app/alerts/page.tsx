@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -29,11 +29,7 @@ export default function AlertsPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [eventTypes, setEventTypes] = useState<string[]>(['earthquake', 'flood']);
   
-  useEffect(() => {
-    fetchEvents();
-  }, [activeTab]);
-  
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     
     try {
@@ -75,20 +71,15 @@ export default function AlertsPage() {
         // Traiter les données pour assurer la structure correcte
         const processedData = data.map(event => {
           console.log("Traitement de l'événement:", event);
-          
-          // Simplification pour éviter les erreurs
           let locationData;
           try {
-            // Si c'est un objet, on l'utilise tel quel
             if (event.location && typeof event.location === 'object') {
               locationData = event.location;
             } 
-            // Si c'est une chaîne qui ressemble à du JSON, on la parse
             else if (typeof event.location === 'string' && 
                     (event.location.trim().startsWith('{') || event.location.trim().startsWith('['))) {
               locationData = JSON.parse(event.location);
             } 
-            // Dans tous les autres cas, on utilise une structure par défaut
             else {
               locationData = { 
                 arrondissements: typeof event.location === 'string' ? [event.location] : ["Non précisé"] 
@@ -121,8 +112,12 @@ export default function AlertsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [activeTab]); 
+  
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+  
   const getLevelBadge = (level: string) => {
     switch(level.toLowerCase()) {
       case 'critical':
