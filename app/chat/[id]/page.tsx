@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useParams } from 'next/navigation';
 import { RealtimeChat } from '@/components/realtime-chat';
 
 interface Message {
@@ -10,8 +11,9 @@ interface Message {
   timestamp: string;
 }
 
-const ChatPage = ({ id }: { id: string }) => {
-  console.log('ChatClient', id);
+const ChatPage = () => {
+  const params = useParams();
+  const id = params.id as string;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
