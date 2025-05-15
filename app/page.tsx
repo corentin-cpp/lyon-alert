@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 import supabase from '@/lib/supabase';
 
 export default function Home() {
-  useEffect(() => {
+ /* useEffect(() => {
     const fetchUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -23,7 +23,7 @@ export default function Home() {
       const { data: { user }, error } = await supabase.auth.getUser();
     };
     fetchUser();
-  });
+  }, []); */
 
   return (
     <div className="w-full">

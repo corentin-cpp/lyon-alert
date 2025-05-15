@@ -28,13 +28,13 @@ export default function MapPage() {
   const [showFilter, setShowFilter] = useState(false);
   
   // Parse URL parameters on client side
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const filterParam = params.get('filter');
-    if (filterParam) {
-      setFilterType(filterParam);
-    }
-  }, []);
+ useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const filterParam = params.get('filter');
+  if (filterParam) {
+    setFilterType(filterParam);
+  }
+}, []);
 
   return (
     <div className="container mx-auto px-4 py-6">
