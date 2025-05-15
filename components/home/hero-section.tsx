@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertTriangle, MapPin, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { motion } from '@/lib/motion';
+import { motion } from 'framer-motion';
 
 export function HeroSection() {
   const [mounted, setMounted] = useState(false);
