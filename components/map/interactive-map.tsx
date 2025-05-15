@@ -14,6 +14,28 @@ import 'leaflet/dist/leaflet.css';
 import arrondissementsData from '@/data/arrondissements-lyon.json';
 import { createClient } from '@supabase/supabase-js';
 
+interface LyonGeoJSON {
+	type: 'FeatureCollection';
+	features: Array<{
+		type: 'Feature';
+		id: string;
+		geometry: {
+			type: 'MultiPolygon';
+			coordinates: number[][][][];
+		};
+		geometry_name: string;
+		properties: {
+			nom: string;
+			nomreduit: string;
+			insee: string;
+			datemaj: string;
+			trigramme: string;
+			gid: number;
+		};
+		bbox: number[];
+	}>;
+}
+
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
 	iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -42,6 +64,9 @@ type Marker = {
 interface MapProps {
 	filterType: string | null;
 }
+
+// Assurez-vous que les données GeoJSON sont correctement typées
+const typedArrondissementsData = arrondissementsData as LyonGeoJSON;
 
 export default function InteractiveMap({ filterType }: MapProps) {
 	const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
@@ -231,7 +256,7 @@ export default function InteractiveMap({ filterType }: MapProps) {
 				/>
 				{showRiskZones && (
 					<GeoJSON
-						data={arrondissementsData}
+						data={typedArrondissementsData}
 						style={(feature) => {
 							const arrondissement = feature?.properties?.nom;
 							let fillColor = '#3388ff'; // bleu par défaut
