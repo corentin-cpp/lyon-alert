@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, ArrowRight, UserPlus, Check } from "lucide-react";
+import { AlertCircle, ArrowRight, UserPlus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import supabase from "@/lib/supabase";
@@ -18,7 +18,6 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [zipCode, setZipCode] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,8 +47,7 @@ export default function RegisterPage() {
         options: {
           data: {
             first_name: firstName,
-            last_name: lastName,
-            zip_code: zipCode
+            last_name: lastName
           }
         }
       });
@@ -117,23 +115,10 @@ export default function RegisterPage() {
               <Input 
                 id="email"
                 type="email" 
-                placeholder="votre@email.fr" 
+                placeholder="exemple@email.fr" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="zipCode">Code postal (Lyon)</Label>
-              <Input 
-                id="zipCode"
-                placeholder="69001" 
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                required
-                pattern="^6900[1-9]$"
-                title="Entrez un code postal de Lyon (69001 à 69009)"
               />
             </div>
             
