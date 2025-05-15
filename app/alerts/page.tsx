@@ -76,20 +76,27 @@ export default function AlertsPage() {
         const processedData = data.map(event => {
           console.log("Traitement de l'événement:", event);
           
-          // Gérer la location qui peut être un JSON ou une chaîne
+          // Simplification pour éviter les erreurs
           let locationData;
-          if (typeof event.location === 'string') {
-            try {
+          try {
+            // Si c'est un objet, on l'utilise tel quel
+            if (event.location && typeof event.location === 'object') {
+              locationData = event.location;
+            } 
+            // Si c'est une chaîne qui ressemble à du JSON, on la parse
+            else if (typeof event.location === 'string' && 
+                    (event.location.trim().startsWith('{') || event.location.trim().startsWith('['))) {
               locationData = JSON.parse(event.location);
-              console.log("Location parsée:", locationData);
-            } catch (e) {
-              console.error("Erreur de parsing de location:", e);
-              // Si ce n'est pas un JSON valide, utiliser une valeur par défaut
-              locationData = { arrondissements: [event.location] };
+            } 
+            // Dans tous les autres cas, on utilise une structure par défaut
+            else {
+              locationData = { 
+                arrondissements: typeof event.location === 'string' ? [event.location] : ["Non précisé"] 
+              };
             }
-          } else {
-            locationData = event.location || { arrondissements: [] };
-            console.log("Location déjà en objet:", locationData);
+          } catch (e) {
+            console.error("Erreur lors du traitement de location:", e);
+            locationData = { arrondissements: ["Non précisé"] };
           }
           
           return {
