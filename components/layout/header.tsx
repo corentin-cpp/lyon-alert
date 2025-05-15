@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/mode-toggle';
-import { 
-  AlertTriangle, 
-  Menu, 
-  X, 
-  MapPin, 
-  MessageSquare, 
-  Bell, 
-  User, 
-  LogIn
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { ModeToggle } from '@/components/mode-toggle'
+import {
+  AlertTriangle,
+  Menu,
+  X,
+  MapPin,
+  MessageSquare,
+  Bell,
+  User,
+  LogIn,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,30 +23,31 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from '@/components/ui/navigation-menu'
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // This would come from auth context in a real app
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <header className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-200",
-      isScrolled 
-        ? "bg-background/95 backdrop-blur-sm border-b" 
-        : "bg-transparent"
-    )}>
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full transition-all duration-200',
+        isScrolled
+          ? 'bg-background/95 backdrop-blur-sm border-b'
+          : 'bg-transparent'
+      )}
+    >
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
@@ -61,20 +62,20 @@ export default function Header() {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link href="/map" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/map">
                       <MapPin className="mr-2 h-4 w-4" />
                       Carte
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/alerts" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/alerts">
                       <Bell className="mr-2 h-4 w-4" />
                       Alertes
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>
@@ -85,18 +86,21 @@ export default function Header() {
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((arrondissement) => (
                         <li key={arrondissement}>
-                          <Link href={`/chat/${arrondissement}`} legacyBehavior passHref>
-                            <NavigationMenuLink className={cn(
-                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                            )}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href={`/chat/${arrondissement}`}
+                              className={cn(
+                                'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground'
+                              )}
+                            >
                               <div className="text-sm font-medium leading-none">
                                 {arrondissement}e Arrondissement
                               </div>
                               <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                Chat communautaire du {arrondissement}e arrondissement
+                                Chat communautaire du {arrondissement}e
                               </p>
-                            </NavigationMenuLink>
-                          </Link>
+                            </Link>
+                          </NavigationMenuLink>
                         </li>
                       ))}
                     </ul>
@@ -128,9 +132,9 @@ export default function Header() {
           {/* Mobile menu button */}
           <div className="flex md:hidden">
             <ModeToggle />
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="ml-2"
             >
@@ -147,18 +151,18 @@ export default function Header() {
 
       {/* Mobile navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden bg-background shadow-sm border-t">
           <div className="space-y-1 px-4 pb-3 pt-2">
-            <Link 
-              href="/map" 
+            <Link
+              href="/map"
               className="flex items-center py-2 text-base font-medium rounded-md hover:bg-accent"
               onClick={() => setMobileMenuOpen(false)}
             >
               <MapPin className="mr-3 h-5 w-5" />
               Carte
             </Link>
-            <Link 
-              href="/alerts" 
+            <Link
+              href="/alerts"
               className="flex items-center py-2 text-base font-medium rounded-md hover:bg-accent"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -184,8 +188,8 @@ export default function Header() {
               </div>
             </div>
             {isLoggedIn ? (
-              <Link 
-                href="/profile" 
+              <Link
+                href="/profile"
                 className="flex items-center py-2 text-base font-medium rounded-md hover:bg-accent"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -206,5 +210,5 @@ export default function Header() {
         </div>
       )}
     </header>
-  );
+  )
 }
