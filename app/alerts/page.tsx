@@ -8,24 +8,26 @@ import { AlertTriangle, Droplets, CalendarClock, MapPin } from "lucide-react";
 import supabase from "@/lib/supabase";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 type Event = {
   id: string;
-  type: 'earthquake' | 'flood';
+  type: string;
   level: string;
   location: {
     arrondissements: string[];
-    coordinates: [number, number];
+    coordinates?: [number, number];
   };
   timestamp: string;
   details: string;
-  magnitude: number;
+  magnitude?: number;
 };
 
 export default function AlertsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
+  const [eventTypes, setEventTypes] = useState<string[]>(['earthquake', 'flood']);
   
   useEffect(() => {
     fetchEvents();
@@ -34,32 +36,84 @@ export default function AlertsPage() {
   const fetchEvents = async () => {
     setLoading(true);
     
-    let query = supabase
-      .from('events')
-      .select('*')
-      .order('timestamp', { ascending: false });
-    
-    if (activeTab !== 'all') {
-      query = query.eq('type', activeTab);
-    }
-    
-    const { data, error } = await query.limit(20);
-    
-    if (!error && data) {
-      // Parse location if it's stored as a JSON string
-      const processedData = data.map((event: any) => ({
-        ...event,
-        location: typeof event.location === 'string' 
-          ? JSON.parse(event.location) 
-          : event.location
-      }));
+    try {
+      console.log("Début de la récupération des events");
       
-      setEvents(processedData);
-    } else {
-      console.error('Erreur lors de la récupération des alertes:', error);
+      let query = supabase
+        .from('Events')
+        .select('*')
+        .order('timestamp', { ascending: false });
+      
+      if (activeTab !== 'all') {
+        query = query.eq('type', activeTab);
+      }
+      
+      console.log("Exécution de la requête:", activeTab);
+      const { data, error } = await query.limit(20);
+      
+      console.log("Réponse reçue:", { data, error });
+      
+      // Get unique event types
+      const { data: typesData, error: typesError } = await supabase
+        .from('Events')
+        .select('type')
+        .limit(50);
+
+      console.log("Types d'événements:", { typesData, typesError });
+
+      if (typesData) {
+        const uniqueTypes = Array.from(new Set(typesData.map(item => item.type)));
+        console.log("Types uniques détectés:", uniqueTypes);
+        setEventTypes(uniqueTypes);
+      }
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        console.log("Données à traiter:", data);
+        
+        // Traiter les données pour assurer la structure correcte
+        const processedData = data.map(event => {
+          console.log("Traitement de l'événement:", event);
+          
+          // Gérer la location qui peut être un JSON ou une chaîne
+          let locationData;
+          if (typeof event.location === 'string') {
+            try {
+              locationData = JSON.parse(event.location);
+              console.log("Location parsée:", locationData);
+            } catch (e) {
+              console.error("Erreur de parsing de location:", e);
+              // Si ce n'est pas un JSON valide, utiliser une valeur par défaut
+              locationData = { arrondissements: [event.location] };
+            }
+          } else {
+            locationData = event.location || { arrondissements: [] };
+            console.log("Location déjà en objet:", locationData);
+          }
+          
+          return {
+            id: event.id,
+            type: event.type,
+            level: event.level || 'low',
+            location: locationData,
+            timestamp: event.timestamp,
+            details: event.details || 'Pas de détails disponibles',
+            magnitude: event.magnitude
+          };
+        });
+        
+        console.log("Données traitées:", processedData);
+        setEvents(processedData);
+      } else {
+        console.log("Aucune donnée reçue ou tableau vide");
+        setEvents([]);
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération des événements:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const getLevelBadge = (level: string) => {
@@ -69,7 +123,7 @@ export default function AlertsPage() {
       case 'high':
         return <Badge variant="destructive">Élevé</Badge>;
       case 'medium':
-        return <Badge variant="warning">Moyen</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Moyen</Badge>;
       case 'low':
         return <Badge variant="outline">Faible</Badge>;
       default:
@@ -84,6 +138,32 @@ export default function AlertsPage() {
     
     return arrondissements.map(arr => `Lyon ${arr}`).join(', ');
   };
+
+  function getEventIcon(type: string) {
+    switch(type.toLowerCase()) {
+      case 'earthquake':
+        return <AlertTriangle className="h-5 w-5 text-orange-500" />;
+      case 'flood':
+        return <Droplets className="h-5 w-5 text-blue-500" />;
+      case 'tsunami':
+        return <Droplets className="h-5 w-5 text-indigo-600" />;
+      default:
+        return <AlertTriangle className="h-5 w-5 text-primary" />;
+    }
+  }
+
+  function getEventLabel(type: string) {
+    switch(type.toLowerCase()) {
+      case 'earthquake':
+        return 'Séisme';
+      case 'flood':
+        return 'tsunami';
+      case 'Tsunami':
+        return 'Tsunami';
+      default:
+        return type;
+    }
+  }
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-12">
@@ -100,31 +180,31 @@ export default function AlertsPage() {
         
         <CardContent className="space-y-6">
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3">
+            <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${eventTypes.length + 1}, 1fr)` }}>
               <TabsTrigger value="all">
                 Toutes les alertes
               </TabsTrigger>
-              <TabsTrigger value="earthquake" className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Séismes
-              </TabsTrigger>
-              <TabsTrigger value="flood" className="flex items-center gap-2">
-                <Droplets className="h-4 w-4" />
-                Inondations
-              </TabsTrigger>
+              {eventTypes.map(type => (
+                <TabsTrigger 
+                  key={type} 
+                  value={type} 
+                  className="flex items-center gap-2"
+                >
+                  {getEventIcon(type)}
+                  {getEventLabel(type)}
+                </TabsTrigger>
+              ))}
             </TabsList>
             
             <TabsContent value="all" className="mt-6">
               {renderEventList(events)}
             </TabsContent>
             
-            <TabsContent value="earthquake" className="mt-6">
-              {renderEventList(events)}
-            </TabsContent>
-            
-            <TabsContent value="flood" className="mt-6">
-              {renderEventList(events)}
-            </TabsContent>
+            {eventTypes.map(type => (
+              <TabsContent key={type} value={type} className="mt-6">
+                {renderEventList(events.filter(event => event.type === type))}
+              </TabsContent>
+            ))}
           </Tabs>
         </CardContent>
       </Card>
@@ -156,8 +236,8 @@ export default function AlertsPage() {
             locale: fr
           });
           
-          const Icon = event.type === 'earthquake' ? AlertTriangle : Droplets;
-          const typeLabel = event.type === 'earthquake' ? "Séisme" : "Inondation";
+          const eventIcon = getEventIcon(event.type);
+          const eventLabel = getEventLabel(event.type);
           
           return (
             <div 
@@ -166,8 +246,8 @@ export default function AlertsPage() {
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Icon className="h-5 w-5 text-primary" />
-                  <h3 className="font-medium">{typeLabel}</h3>
+                  {eventIcon}
+                  <h3 className="font-medium">{eventLabel}</h3>
                   {getLevelBadge(event.level)}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground gap-1">
@@ -186,11 +266,9 @@ export default function AlertsPage() {
                 
                 {event.magnitude && (
                   <div className="flex items-center gap-1">
-                    {event.type === 'earthquake' ? (
-                      <span>Magnitude: {event.magnitude}</span>
-                    ) : (
-                      <span>Niveau: {event.magnitude}</span>
-                    )}
+                    <span>
+                      {event.type === 'earthquake' ? 'Magnitude' : 'Niveau'}: {event.magnitude}
+                    </span>
                   </div>
                 )}
               </div>
