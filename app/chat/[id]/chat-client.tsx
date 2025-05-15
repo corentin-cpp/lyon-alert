@@ -13,6 +13,7 @@ interface Message {
 }
 
 const ChatPage = ({ id }: { id: string }) => {
+  console.log('ChatClient', id);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,7 @@ const ChatPage = ({ id }: { id: string }) => {
   }, [messages]);
 
   return (
-    <RealtimeChat roomName="my-chat-room" username="john_doe" zone={id}/>
+    <RealtimeChat roomName={id} username="users" zone={id}/>
   );
 };
 

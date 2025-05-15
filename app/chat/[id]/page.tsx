@@ -1,19 +1,28 @@
-import ChatClient from '@/app/chat/[id]/chat-client';
+'use client';
 
-export function generateStaticParams() {
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-    { id: '4' },
-    { id: '5' },
-    { id: '6' },
-    { id: '7' },
-    { id: '8' },
-    { id: '9' },
-  ];
+import { useState, useEffect, useRef } from 'react';
+import { RealtimeChat } from '@/components/realtime-chat';
+
+interface Message {
+  id: number;
+  user: string;
+  content: string;
+  timestamp: string;
 }
 
-export default function ChatPage({ params }: { params: { id: string } }) {
-  return <ChatClient id={params.id} />;
-}
+const ChatPage = ({ id }: { id: string }) => {
+  console.log('ChatClient', id);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  return (
+    <RealtimeChat roomName={id} username="users" zone={id}/>
+  );
+};
+
+export default ChatPage;
