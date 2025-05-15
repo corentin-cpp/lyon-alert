@@ -64,7 +64,9 @@ export const RealtimeChat = ({
     const uniqueMessages = mergedMessages.filter(
       (message, index, self) => index === self.findIndex((m) => m.id === message.id)
     )
-    return uniqueMessages.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    return uniqueMessages
+      .filter(m => !!m.createdAt)
+      .sort((a, b) => a.createdAt!.localeCompare(b.createdAt!))
   }, [initialMessages, realtimeMessages])
 
   useEffect(() => {
