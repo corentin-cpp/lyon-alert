@@ -50,10 +50,14 @@ export const useRealtimeChat = ({
           setMessages((prev) => [
             ...prev,
             {
-              ...newMsg,
-              user: { name: newMsg.username },
+              id: newMsg.id,
+              content: newMsg.content,
               created_at: newMsg.created_at || '',
-            },
+              room: newMsg.room,
+              username: newMsg.username,
+              user_id: newMsg.user_id,
+              user: { name: newMsg.username },
+            } as ChatMessage,
           ])
         }
       )
