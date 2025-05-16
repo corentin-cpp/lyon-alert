@@ -112,11 +112,11 @@ export default function AlertsPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab]); // Include activeTab as dependency for useCallback
+  }, [activeTab]); 
   
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]); // Include fetchEvents as dependency
+  }, [fetchEvents]);
   
   const getLevelBadge = (level: string) => {
     switch(level.toLowerCase()) {

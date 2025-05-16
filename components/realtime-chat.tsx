@@ -88,7 +88,7 @@ export const RealtimeChat = ({
   )
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background text-foreground antialiased">
+    <div className="flex flex-col h-[calc(100vh-100px)]">
       {/* Zone Info Header */}
       <div className={cn('px-6 py-4 text-white shadow-md', zoneLabel.color)}>
         <h2 className="text-xl font-bold">{zoneLabel.name}</h2>
@@ -98,7 +98,7 @@ export const RealtimeChat = ({
       {/* Chat Messages */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-muted"
+        className="flex-1 overflow-y-auto pb-4 px-4 py-6 space-y-4 bg-muted"
       >
         {allMessages.length === 0 && (
           <div className="text-center text-sm text-muted-foreground">
@@ -128,29 +128,31 @@ export const RealtimeChat = ({
       </div>
 
       {/* Input */}
-      <form
-        onSubmit={handleSendMessage}
-        className="flex items-center gap-2 border-t border-border p-4 bg-background"
-      >
-        <Input
-          className={cn(
-            'rounded-full bg-background text-sm transition-all duration-300 flex-1',
-            !isConnected && 'opacity-50'
-          )}
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Écris ton message..."
-          disabled={!isConnected}
-        />
-        <Button
-          className="aspect-square rounded-full"
-          type="submit"
-          disabled={!isConnected || !newMessage.trim()}
+      <div className="sticky bottom-0 bg-white">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-center gap-2 border-t border-border p-4 bg-background"
         >
-          <Send className="size-4" />
-        </Button>
-      </form>
+          <Input
+            className={cn(
+              'rounded-full bg-background text-sm transition-all duration-300 flex-1',
+              !isConnected && 'opacity-50'
+            )}
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Écris ton message..."
+            disabled={!isConnected}
+          />
+          <Button
+            className="aspect-square rounded-full"
+            type="submit"
+            disabled={!isConnected || !newMessage.trim()}
+          >
+            <Send className="size-4" />
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
