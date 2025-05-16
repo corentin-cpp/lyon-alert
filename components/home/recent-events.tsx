@@ -11,7 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 // Mock data - would come from the API in a real app
-const mockEvents = [
+const mockEvents: Event[] = [
   {
     id: 1,
     type: 'earthquake',
@@ -102,7 +102,17 @@ export function RecentEvents() {
   );
 }
 
-function EventCard({ event }) {
+type Event = {
+  id: number;
+  type: 'earthquake' | 'flood';
+  magnitude?: number;
+  level?: 'minor' | 'moderate' | 'major';
+  location: string;
+  timestamp: string;
+  details: string;
+};
+
+function EventCard({ event }: { event: Event }) {
   const { type, magnitude, level, location, timestamp, details } = event;
   const isEarthquake = type === 'earthquake';
   const icon = isEarthquake ? (
@@ -120,7 +130,7 @@ function EventCard({ event }) {
         : 'Niveau élevé';
   
   const badgeVariant = isEarthquake
-    ? magnitude >= 3 ? 'destructive' : 'outline'
+    ? magnitude && magnitude >= 3 ? 'destructive' : 'outline'
     : level === 'minor' ? 'outline' : level === 'moderate' ? 'default' : 'destructive';
     
   return (
