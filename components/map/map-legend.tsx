@@ -1,4 +1,4 @@
-import { AlertTriangle, Droplets, Users } from 'lucide-react';
+import { AlertTriangle, Droplets, Skull, Users } from "lucide-react";
 
 export function MapLegend() {
   return (
@@ -19,9 +19,13 @@ export function MapLegend() {
               <Users className="h-4 w-4 text-primary" />
               <span>Signalement communautaire</span>
             </li>
+            <li className="flex items-center gap-2">
+              <Skull className="h-4 w-4 text-red-500" />
+              <span>Cyber-attaque</span>
+            </li>
           </ul>
         </div>
-        
+
         <div>
           <h3 className="font-medium mb-2">Niveaux d&apos;alerte</h3>
           <ul className="space-y-2">
@@ -43,7 +47,7 @@ export function MapLegend() {
             </li>
           </ul>
         </div>
-        
+
         <div>
           <h3 className="font-medium mb-2">Zones de risque</h3>
           <ul className="space-y-2">
@@ -56,12 +60,12 @@ export function MapLegend() {
               <span>Zone inondable</span>
             </li>
             <li className="flex items-center gap-2">
-              <span className="w-4 h-4 bg-purple-500/50" />
+              <span className="w-4 h-4 bg-green-500/50" />
               <span>Zone mixte (séisme + inondation)</span>
             </li>
           </ul>
         </div>
-        
+
         <div>
           <h3 className="font-medium mb-2">Symboles additionnels</h3>
           <ul className="space-y-2">
