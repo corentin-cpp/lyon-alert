@@ -124,12 +124,10 @@ export default function Header() {
               {isLoggedIn ? (
                 <Button
                   variant="ghost"
-                  className="w-full text-left"
-                  onClick={() => {
-                    supabase.auth.signOut()
-                    window.location.reload()
-                  }}>
-                  <p>{user.email}</p>
+                  className="w-full text-left">
+                  <Link href="/auth/profile">
+                    <User className="mr-2 h-4 w-4" />
+                  </Link>
                 </Button>
               ) : (
                 <Button asChild>
@@ -203,12 +201,10 @@ export default function Header() {
             {isLoggedIn ? (
               <Button
                 variant="ghost"
-                className="w-full text-left"
-                onClick={() => {
-                  supabase.auth.signOut()
-                  window.location.reload()
-                }}>
-                <p>{user.email}</p>
+                className="w-full text-left">
+                <Link href="/auth/profile" onClick={() => setMobileMenuOpen(false)}>
+                  <User className="mr-2 h-4 w-4" />
+                </Link>
               </Button>
             ) : (
               <div className="pt-4">
