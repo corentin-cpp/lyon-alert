@@ -24,17 +24,27 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
+import supabase from '@/lib/supabase'
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<any | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
 
+    async function checkLoginStatus(): Promise<void> {
+      const user = await supabase.auth.getUser()
+      if (user.data.user) {
+        setIsLoggedIn(true)
+        setUser(user.data.user)
+      }
+    }
+    checkLoginStatus();
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -112,11 +122,14 @@ export default function Header() {
             <div className="flex items-center space-x-2">
               <ModeToggle />
               {isLoggedIn ? (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/profile">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Profil</span>
-                  </Link>
+                <Button
+                  variant="ghost"
+                  className="w-full text-left"
+                  onClick={() => {
+                    supabase.auth.signOut()
+                    window.location.reload()
+                  }}>
+                  <p>{user.email}</p>
                 </Button>
               ) : (
                 <Button asChild>
@@ -188,14 +201,15 @@ export default function Header() {
               </div>
             </div>
             {isLoggedIn ? (
-              <Link
-                href="/profile"
-                className="flex items-center py-2 text-base font-medium rounded-md hover:bg-accent"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <User className="mr-3 h-5 w-5" />
-                Profil
-              </Link>
+              <Button
+                variant="ghost"
+                className="w-full text-left"
+                onClick={() => {
+                  supabase.auth.signOut()
+                  window.location.reload()
+                }}>
+                <p>{user.email}</p>
+              </Button>
             ) : (
               <div className="pt-4">
                 <Button asChild className="w-full">
