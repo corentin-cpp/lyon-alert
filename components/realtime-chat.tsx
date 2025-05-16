@@ -47,7 +47,7 @@ export const RealtimeChat = ({
     isConnected,
   } = useRealtimeChat({
     roomName,
-    username,
+    username, 
   })
 
   const [newMessage, setNewMessage] = useState('')
