@@ -1,5 +1,7 @@
 import { cn } from '@/lib/utils'
 import type { ChatMessage } from '@/hooks/use-realtime-chat'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 
 interface ChatMessageItemProps {
   message: ChatMessage
@@ -8,6 +10,11 @@ interface ChatMessageItemProps {
 }
 
 export const ChatMessageItem = ({ message, isOwnMessage, showHeader }: ChatMessageItemProps) => {
+  // Formatage de la date en français
+  const formattedTime = message.created_at
+    ? format(new Date(message.created_at), 'HH:mm', { locale: fr })
+    : ''
+
   return (
     <div className={`flex mt-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -21,14 +28,10 @@ export const ChatMessageItem = ({ message, isOwnMessage, showHeader }: ChatMessa
               'justify-end flex-row-reverse': isOwnMessage,
             })}
           >
-            <span className={'font-medium'}>{message.user.name}</span>
-            <span className="text-foreground/50 text-xs">
-              {new Date(message.created_at).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })}
+            <span className={'font-medium'}>
+              {isOwnMessage ? 'Vous' : message.user.name || 'Utilisateur'}
             </span>
+            <span className="text-foreground/50 text-xs">{formattedTime}</span>
           </div>
         )}
         <div

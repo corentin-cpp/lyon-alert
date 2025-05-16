@@ -82,7 +82,7 @@ export const useRealtimeChat = ({
       content,
       room: roomName,
       user_id: user.id,
-      username,
+      username, 
     })
 
     if (error) console.error('Erreur Supabase :', error.message)
