@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Droplets, Clock, MapPin } from 'lucide-react';
+import { AlertTriangle, Droplets, Clock, MapPin, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SuggestedActivitiesModal } from './suggested-activities-modal';
 
 // Mock data - would come from the API in a real app
 const mockEvents: Event[] = [
@@ -22,7 +23,7 @@ const mockEvents: Event[] = [
   },
   {
     id: 2,
-    type: 'flood',
+    type: 'tsunami',
     level: 'moderate',
     location: 'Lyon 2e - Quais',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
@@ -38,7 +39,7 @@ const mockEvents: Event[] = [
   },
   {
     id: 4,
-    type: 'flood',
+    type: 'tsunami',
     level: 'minor',
     location: 'Lyon 7e',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
@@ -104,7 +105,7 @@ export function RecentEvents() {
 
 type Event = {
   id: number;
-  type: 'earthquake' | 'flood';
+  type: 'earthquake' | 'tsunami' | 'hack' | 'community';
   magnitude?: number;
   level?: 'minor' | 'moderate' | 'major';
   location: string;
@@ -113,6 +114,7 @@ type Event = {
 };
 
 function EventCard({ event }: { event: Event }) {
+  const [showActivities, setShowActivities] = useState(false);
   const { type, magnitude, level, location, timestamp, details } = event;
   const isEarthquake = type === 'earthquake';
   const icon = isEarthquake ? (
@@ -134,28 +136,46 @@ function EventCard({ event }: { event: Event }) {
     : level === 'minor' ? 'outline' : level === 'moderate' ? 'default' : 'destructive';
     
   return (
-    <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-      <div className="flex-shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap gap-2 items-center mb-1">
-          <h3 className="font-medium">
-            {isEarthquake ? 'Séisme' : 'Inondation'}
-          </h3>
-          <Badge variant={badgeVariant}>
-            {badgeText}
-          </Badge>
-          <span className="text-sm text-muted-foreground ml-auto whitespace-nowrap">
-            {formatDistanceToNow(new Date(timestamp), { addSuffix: true, locale: fr })}
-          </span>
+    <>
+      <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+        <div className="flex-shrink-0">
+          {icon}
         </div>
-        <div className="flex items-start gap-1 text-sm text-muted-foreground mb-2">
-          <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-          <span>{location}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap gap-2 items-center mb-1">
+            <h3 className="font-medium">
+              {isEarthquake ? 'Séisme' : 'Inondation'}
+            </h3>
+            <Badge variant={badgeVariant}>
+              {badgeText}
+            </Badge>
+            <span className="text-sm text-muted-foreground ml-auto whitespace-nowrap">
+              {formatDistanceToNow(new Date(timestamp), { addSuffix: true, locale: fr })}
+            </span>
+          </div>
+          <div className="flex items-start gap-1 text-sm text-muted-foreground mb-2">
+            <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+            <span>{location}</span>
+          </div>
+          <p className="text-sm mb-3">{details}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => setShowActivities(true)}
+          >
+            <Activity className="h-4 w-4" />
+            Voir les activités suggérées
+          </Button>
         </div>
-        <p className="text-sm">{details}</p>
       </div>
-    </div>
+
+      <SuggestedActivitiesModal
+        isOpen={showActivities}
+        onClose={() => setShowActivities(false)}
+        eventType={type}
+        eventLocation={location}
+      />
+    </>
   );
 }

@@ -160,7 +160,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function seedEvents(numEvents = 2000) {
+async function seedEvents(numEvents = 30) {
   console.log(`Starting to seed ${numEvents} events...`);
   
   for (let i = 0; i < numEvents; i++) {
@@ -197,17 +197,141 @@ async function seedEvents(numEvents = 2000) {
     }
     
     console.log(`Event #${i+1} inserted:`, JSON.stringify(event, null, 2));
-    
-    if (i < numEvents - 1) {
-      const delayMs = Math.floor(Math.random() * 19000) + 1000; // 1-20 seconds
-      console.log(`Waiting ${(delayMs/1000).toFixed(1)} seconds before next insertion...`);
-      await sleep(delayMs);
-    }
   }
   
   console.log(`Successfully completed seeding ${numEvents} events into the database`);
 }
 
-seedEvents()
-  .then(() => console.log('Seeding complete!'))
+type ActivityType = 'earthquake' | 'tsunami' | 'hack' | 'community';
+
+interface Activity {
+  name: string;
+  desc: string;
+}
+
+const activities: Record<ActivityType, Activity[]> = {
+  earthquake: [
+    {
+      name: 'Évaluation des dégâts',
+      desc: 'Inspection des bâtiments et des infrastructures pour évaluer les dommages causés par le séisme'
+    },
+    {
+      name: 'Mise en sécurité',
+      desc: 'Évacuation et sécurisation des zones à risque suite au tremblement de terre'
+    },
+    {
+      name: 'Suivi sismique',
+      desc: 'Surveillance continue de l\'activité sismique dans la zone'
+    }
+  ],
+  tsunami: [
+    {
+      name: 'Évacuation côtière',
+      desc: 'Coordination de l\'évacuation des zones côtières et des berges'
+    },
+    {
+      name: 'Surveillance des niveaux d\'eau',
+      desc: 'Suivi des niveaux d\'eau et des courants dans les cours d\'eau'
+    },
+    {
+      name: 'Protection des infrastructures',
+      desc: 'Mise en place de barrières et protection des installations sensibles'
+    }
+  ],
+  hack: [
+    {
+      name: 'Analyse de sécurité',
+      desc: 'Investigation approfondie des systèmes compromis'
+    },
+    {
+      name: 'Restauration des services',
+      desc: 'Rétablissement des services informatiques affectés'
+    },
+    {
+      name: 'Renforcement de la sécurité',
+      desc: 'Mise à jour des protocoles de sécurité et des pare-feu'
+    }
+  ],
+  community: [
+    {
+      name: 'Enquête communautaire',
+      desc: 'Investigation des signalements par les citoyens'
+    },
+    {
+      name: 'Coordination des bénévoles',
+      desc: 'Organisation des volontaires pour l\'aide aux sinistrés'
+    },
+    {
+      name: 'Information publique',
+      desc: 'Diffusion des informations et recommandations aux citoyens'
+    }
+  ]
+};
+
+const ruesLyon = [
+  'Rue de la République',
+  'Rue Mercière',
+  'Rue de la Part-Dieu',
+  'Rue de la Bourse',
+  'Rue de la Charité',
+  'Rue de la Monnaie',
+  'Rue des Remparts d\'Ainay',
+  'Rue des Marronniers',
+  'Rue de la Barre',
+  'Rue des Archers',
+  'Rue des Capucins',
+  'Rue de la Platière',
+  'Rue de la Poulaillerie',
+  'Rue de la Baleine',
+  'Rue de la Lanterne',
+  'Rue de la Bombarde',
+  'Rue de la Tour Rose',
+  'Rue des Trois Maries',
+  'Rue de la Fromagerie',
+  'Rue de la Grande Côte'
+];
+
+function generateRandomAddress(): string {
+  const rue = getRandomElement(ruesLyon);
+  const numero = Math.floor(Math.random() * 200) + 1;
+  const arrondissement = getRandomElement(arrondissementZones).name;
+  return `${numero} ${rue}, ${arrondissement}`;
+}
+
+async function seedActivities(numActivities = 40) {
+  console.log(`Starting to seed ${numActivities} activities...`);
+  
+  for (let i = 0; i < numActivities; i++) {
+    const eventType = getRandomElement(Object.keys(activities)) as ActivityType;
+    const activityTemplates = activities[eventType];
+    const activity = getRandomElement(activityTemplates);
+    
+    const { data, error } = await supabase
+      .from('Activities')
+      .insert([{
+        name: activity.name,
+        desc: activity.desc,
+        type: eventType,
+        location: generateRandomAddress()
+      }]);
+    
+    if (error) {
+      console.error(`Error inserting activity #${i+1}:`, error);
+      continue;
+    }
+    
+    console.log(`Activity #${i+1} inserted:`, JSON.stringify(activity, null, 2));
+  }
+  
+  console.log(`Successfully completed seeding ${numActivities} activities into the database`);
+}
+
+// Modifier la fonction principale pour inclure la génération des activités
+async function main() {
+  await seedActivities();
+  await seedEvents();
+}
+
+main()
+  .then(() => console.log('All seeding complete!'))
   .catch(err => console.error('Error during seeding:', err));
