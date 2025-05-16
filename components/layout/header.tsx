@@ -87,6 +87,14 @@ export default function Header() {
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+                                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/probability">
+                      <AlertTriangle className="mr-2 h-4 w-4" />
+                      Risques
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>
                     <MessageSquare className="mr-2 h-4 w-4" />
