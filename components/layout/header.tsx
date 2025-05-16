@@ -25,6 +25,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import supabase from '@/lib/supabase'
+import { GoogleTranslateButton } from '@/components/google-translate-button';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -120,6 +121,7 @@ export default function Header() {
             </NavigationMenu>
 
             <div className="flex items-center space-x-2">
+              <GoogleTranslateButton />
               <ModeToggle />
               {isLoggedIn ? (
                 <Button
@@ -142,6 +144,7 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <div className="flex md:hidden">
+            <GoogleTranslateButton />
             <ModeToggle />
             <Button
               variant="ghost"
