@@ -85,7 +85,7 @@ export function SuggestedActivitiesModal({ isOpen, onClose, eventType, eventLoca
             ))
           ) : (
             <div className="text-center py-4">
-              <p className="text-muted-foreground">Aucune activité suggérée pour ce type d'événement</p>
+              <p className="text-muted-foreground">Aucune activité suggérée pour ce type d&aposévénement</p>
             </div>
           )}
         </div>
