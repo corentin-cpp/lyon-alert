@@ -112,9 +112,11 @@ export default function AlertsPage() {
     } finally {
       setLoading(false);
     }
+  }, [activeTab]); 
   
   useEffect(() => {
     fetchEvents();
+  }, [fetchEvents]);
   
   const getLevelBadge = (level: string) => {
     switch(level.toLowerCase()) {
